@@ -259,7 +259,7 @@ with gr.Blocks() as app_tts:
             nfe_step=nfe_slider,
             speed=speed_slider,
         )
-        if gradio.Request().headers.get("accept") == "application/json":
+        if gr.Request().headers.get("accept") == "application/json":
             return encode_file_to_base64(audio_result), encode_file_to_base64(spectrogram_path), ref_text_out
         else:
             return audio_out, spectrogram_path, ref_text_out
