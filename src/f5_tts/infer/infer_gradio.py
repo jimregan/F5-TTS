@@ -16,6 +16,7 @@ import torch
 import torchaudio
 from cached_path import cached_path
 from transformers import AutoModelForCausalLM, AutoTokenizer
+import base64
 
 try:
     import spaces
@@ -56,6 +57,12 @@ DEFAULT_TTS_MODEL_CFG = [
 # load models
 
 vocoder = load_vocoder()
+
+
+def encode_file_to_base64(filepath):
+    with open(filepath, "rb") as f:
+        encoded = base64.b64encode(f.read()).decode("utf-8")
+    return encoded
 
 
 def load_f5tts():
@@ -252,7 +259,10 @@ with gr.Blocks() as app_tts:
             nfe_step=nfe_slider,
             speed=speed_slider,
         )
-        return audio_out, spectrogram_path, ref_text_out
+        if gradio.Request().headers.get("accept") == "application/json":
+            return encode_file_to_base64(audio_result), encode_file_to_base64(spectrogram_path), ref_text_out
+        else:
+            return audio_out, spectrogram_path, ref_text_out
 
     generate_btn.click(
         basic_tts,
